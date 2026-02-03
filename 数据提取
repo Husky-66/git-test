@@ -1,0 +1,50 @@
+*SET, File_name, 'Stress_Post-heating_SL15mm_single-laser'
+!!----------------------------+++++++++++++++++++++++------------------------!! process parameters and mesh size
+*SET, P_power, 300e12
+*SET, V_velocity, 950*1e3                        
+*SET, H_hatch, 100
+*SET, D_depth, 40
+*SET, rb_, 75
+*SET, Spy, 100                                                            !! y coordinate of start point 
+*SET, Spx, 60
+!!----------------------------+++++++++++++++++++++++------------------------!!  STRESS
+!!----------------------------+++++++++++++++++++++++------------------------!!  STRESS
+!!----------------------------+++++++++++++++++++++++------------------------!!  STRESS
+/POST1
+ALLSEL, all 
+*GET, N_set, ACTIVE, 0, set, lstp, , ,
+*GET, N_time, ACTIVE, 0, set, time, , ,
+!
+ALLSEL,ALL
+ESEL,S,CENT,Y,-1000,1000                               
+ESEL,R,CENT,X,-25000,25000
+ESEL,R,CENT,Z,0,60000
+!ESEL,S,MAT,,2!
+!ESEL,R,TYPE,,1!
+!NSLA, L, 57!
+!NSEL,s,node,,16105,16154!
+
+nsle,s,1
+
+SET,LAST
+
+*CFOPEN, %File_name%_P%P_power%_V%V_velocity%_D%D_depth%_LS@%N_set%_Time@%N_time%, dat,,                   
+*GET, nmax, NODE, 0, NUM, MAXD
+*GET, nmin, NODE, 0, NUM, MIN
+*DO, i, nmin, nmax
+    *if, NSEL(i), gt, 0, then
+         *GET, XN, NODE, i, LOC, X,                  
+         *GET, YN, NODE, i, LOC, Y,
+         *GET, ZN, NODE, i, LOC, Z,         
+              *GET, Von_stress, NODE, i, S,EQV            
+              *GET, Stress_X, NODE, i, S, X
+              *GET, Stress_Y, NODE, i, S, Y
+              *GET, Stress_Z, NODE, i, S, Z
+              *GET, Displacement_X, NODE, i, U, X
+              *GET, Displacement_Y, NODE, i, U, Y
+              *GET, Displacement_Z, NODE, i, U, Z
+              *vwrite,  i, XN, YN, ZN, Von_stress, Stress_X, Stress_Y,Stress_Z,Displacement_X, Displacement_Y, Displacement_Z
+              (1x, 1f8.0, 10f14.4)                  
+     *ENDIF
+*enddo
+*cfclose
